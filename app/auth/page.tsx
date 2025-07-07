@@ -1,3 +1,5 @@
+import AuthLayout from "@/components/auth/auth-layout";
+
 export default function AuthPage() {
-    return <div>Auth - Page Login and Registration</div>
+    return <AuthLayout/>
 }

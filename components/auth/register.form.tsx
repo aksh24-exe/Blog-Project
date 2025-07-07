@@ -14,6 +14,8 @@ import {
 import { z } from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { signUp } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const registerSchema = z
   .object({
@@ -31,7 +33,11 @@ const registerSchema = z
 
 type RegistrationFormValue = z.infer<typeof registerSchema>;
 
-export default function RegistrationForm() {
+interface RegistrationFormProps {
+  onSuccess?: () => void;
+}
+
+export default function RegistrationForm({ onSuccess }: RegistrationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<RegistrationFormValue>({
     resolver: zodResolver(registerSchema),
@@ -46,8 +52,27 @@ export default function RegistrationForm() {
   const onRegisterSubmite = async (values: RegistrationFormValue) => {
     setIsLoading(true);
     try {
-      console.log(values);
-    } catch (error) {}
+      const { error } = await signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        toast("Failed to create account. please try again");
+        return;
+      }
+      toast(
+        "Your account has been created sucessfully. please sign in with email & password"
+      );
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
